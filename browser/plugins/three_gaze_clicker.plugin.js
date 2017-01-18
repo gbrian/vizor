@@ -9,11 +9,7 @@
 
 		this.input_slots = [
 			{name: 'camera', dt: core.datatypes.CAMERA},
-			{name: 'scene', dt: core.datatypes.SCENE},
-			{name: 'delay', dt: core.datatypes.FLOAT, def: 1.0},
-			{name: 'show icon', dt: core.datatypes.BOOL, def: true},
-			{name: 'eye distance', dt: core.datatypes.FLOAT, def: this.iconDistance,
-			 desc: 'Eye Distance for Gaze Clicker icon in VR'}
+			{name: 'scene', dt: core.datatypes.SCENE}
 		]
 
 		this.output_slots = [
@@ -22,17 +18,11 @@
 		]
 
 		this.always_update = true
-
-		this.clickDelay = 1.0
-
-		this.showIcon = true
 	}
 
 	ThreeGazeClicker.prototype = Object.create(Plugin.prototype)
 
 	ThreeGazeClicker.prototype.reset = function() {
-		this.clickFactor = 0.0
-		this.clickTime = 0.0
 	}
 
 	ThreeGazeClicker.prototype.play = function() {
@@ -47,24 +37,10 @@
 			case 1: // scene
 				this.scene = data
 				break
-			case 2: // delay
-				this.clickDelay = data
-				break
-			case 3: // icon
-				this.showIcon = data
-				break
 			default:
 				break
 		}
 
-		// 'debug' option to move the gaze clicker eye distance
-		if (slot.name === 'eye distance') {
-			this.iconDistance = data
-			if (this.scene.children[1].children.indexOf(this.object3d) >= 0) {
-				this.scene.children[1].remove(this.object3d)
-			}
-			this.object3d = undefined
-		}
 	}
 
 	ThreeGazeClicker.prototype.update_output = function(slot) {
@@ -94,20 +70,20 @@
 		})
 
 		this.input.on('rayover', function(mesh) {
-			el.style.cursor = 'pointer'
-
 			if (!mesh || E2.app.worldEditor.isActive())
 				return;
+
+			el.style.cursor = 'pointer'
 
 			this.lastObj = mesh
 			E2.core.runtimeEvents.emit('gazeIn:'+mesh.uuid)
 		})
 
 		this.input.on('rayout', function(mesh) {
-			el.style.cursor = ''
-
 			if (!mesh || E2.app.worldEditor.isActive())
 				return;
+
+			el.style.cursor = ''
 
 			this.lastObj = mesh
 			E2.core.runtimeEvents.emit('gazeOut:'+mesh.uuid)
