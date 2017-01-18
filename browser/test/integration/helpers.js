@@ -125,14 +125,17 @@ exports.reset = function() {
 		}
 	}
 
+	function createEl() {
+		var el = domNode()
+		el.setAttribute = function() {}
+		return el
+	}
+
 	global.document = {
 		addEventListener: global.addEventListener,
 		body: domNode(),
-		createElement: function() {
-			var el = domNode()
-			el.setAttribute = function() {}
-			return el
-		},
+		createElementNS: createEl,
+		createElement: createEl,
 		removeEventListener: function() {},
 		getElementsByTagName: function() {
 			return [ domNode() ]
@@ -282,6 +285,8 @@ exports.reset = function() {
 	E2.dom.canvas_parent.scrollTop = E2.dom.canvas_parent.scrollLeft = 
 		function() { return 0; }
 
+    global.AudioContext = function() {}
+
 	global.E2.app = new Application()
 	global.E2.app.updateCanvas = function() {}
 	global.E2.app.getSlotPosition = function() {}
@@ -298,6 +303,11 @@ exports.reset = function() {
 
 	global.E2.app.player = {
 		core: E2.core,
+		vrControlCamera: new THREE.PerspectiveCamera(
+				90,
+				1280 / 720,
+				0.001,
+				1000),
 		state: {}
 	}
 
@@ -308,8 +318,9 @@ exports.reset = function() {
 	E2.core.renderer = {
 		render: function() {},
 		clear: function() {},
+		getPixelRatio: function() {},
 		setPixelRatio: function() {},
-		domElement: {parentElement:{style:{}}},
+		domElement: domNode(),
 		setSize: function(){},
 		setSizeNoResize: function(){},
 		setClearColor: function() {},
@@ -357,7 +368,10 @@ exports.setupGlobals = function() {
 	}
 
 	global.NodeUI = function() {
-		this.dom = [$()]
+		this.dom = [{
+			position:function(){return {top:10,left:10}},
+			width:function(){return 200},
+			height:function(){return 50} }]
 		this.dom.position = this.dom[0].position
 		this.dom.width = this.dom[0].width
 		this.dom.height = this.dom[0].height
@@ -365,6 +379,7 @@ exports.setupGlobals = function() {
 		this.setSelected = function(){}
 		this.redrawSlots = function(){}
 	}
+	global.NodeUI.redrawActiveGraph = function(){}
 
 	global.TextureCache = function() {}
 	global.PatchManager = function() {}
